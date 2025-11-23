@@ -24,14 +24,18 @@ repositories {
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation(libs.junit.jupiter)
-
+    testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // This dependency is exported to consumers, that is to say found on their compile classpath.
-    api(libs.commons.math3)
+    api("org.web3j:core:4.14.0")
 
     // This dependency is used internally, and not exposed to consumers on their own compile classpath.
-    implementation(libs.guava)
+    implementation("io.github.microutils:kotlin-logging:3.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
+
+    // testImplementation("com.redis:testcontainers-redis:2.2.2")
+    // testImplementation("org.testcontainers:junit-jupiter")
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -42,8 +46,14 @@ java {
 }
 
 tasks.named<Test>("test") {
-    // Use JUnit Platform for unit tests.
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags("stress")
+    }
+
+    testLogging {
+        events("passed", "failed")
+        showStandardStreams = true
+    }
 }
 
 publishing {
@@ -68,7 +78,7 @@ publishing {
 
                 developers {
                     developer {
-                        name = "psychoplasma"
+                        name = "Mustafa Morca"
                     }
                 }
 
