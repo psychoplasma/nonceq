@@ -58,6 +58,14 @@ class NonceQBuilder {
     }
 
     /**
+     * Sets the repository to use Redis storage
+     */
+    fun withRedisRepository(jedisPool: redis.clients.jedis.JedisPool): NonceQBuilder {
+        this.repository = com.nonceq.queue.redis.RedisNonceQueueRepository(jedisPool)
+        return this
+    }
+
+    /**
      * Sets the block nonce provider (required)
      */
     fun withBlockNonceProvider(provider: BlockNonceProvider): NonceQBuilder {

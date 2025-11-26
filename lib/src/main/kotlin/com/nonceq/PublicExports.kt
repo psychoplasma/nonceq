@@ -19,6 +19,7 @@ public typealias NonceRecord = com.nonceq.queue.Nonce
 
 // Implementations
 public typealias InMemoryRepository = com.nonceq.queue.inmemory.InMemoryNonceQueueRepository
+public typealias RedisRepository = com.nonceq.queue.redis.RedisNonceQueueRepository
 public typealias QueueManager = com.nonceq.queue.NonceQueueManager
 
 // Builder
