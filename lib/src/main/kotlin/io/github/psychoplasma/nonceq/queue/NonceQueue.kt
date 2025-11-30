@@ -1,4 +1,4 @@
-package com.nonceq.queue
+package io.github.psychoplasma.nonceq.queue
 
 import java.math.BigInteger
 import java.time.Instant

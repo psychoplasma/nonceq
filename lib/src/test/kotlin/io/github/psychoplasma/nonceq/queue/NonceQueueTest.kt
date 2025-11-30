@@ -1,8 +1,8 @@
-package com.nonceq.queue
+package io.github.psychoplasma.nonceq.queue
 
-import com.nonceq.queue.*
-import com.nonceq.queue.inmemory.InMemoryNonceQueueRepository
-import com.nonceq.Utils.generateAddress
+import io.github.psychoplasma.nonceq.queue.*
+import io.github.psychoplasma.nonceq.queue.inmemory.InMemoryNonceQueueRepository
+import io.github.psychoplasma.nonceq.Utils.generateAddress
 
 import java.math.BigInteger
 

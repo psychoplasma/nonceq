@@ -1,10 +1,10 @@
-package com.nonceq
+package io.github.psychoplasma.nonceq
 
-import com.nonceq.queue.NonceQueue
-import com.nonceq.queue.NonceQueueManager
-import com.nonceq.queue.NonceQueueRepository
-import com.nonceq.queue.inmemory.InMemoryNonceQueueRepository
-import com.nonceq.utils.BlockNonceProvider
+import io.github.psychoplasma.nonceq.queue.NonceQueue
+import io.github.psychoplasma.nonceq.queue.NonceQueueManager
+import io.github.psychoplasma.nonceq.queue.NonceQueueRepository
+import io.github.psychoplasma.nonceq.queue.inmemory.InMemoryNonceQueueRepository
+import io.github.psychoplasma.nonceq.utils.BlockNonceProvider
 
 import java.math.BigInteger
 
@@ -61,7 +61,7 @@ class NonceQBuilder {
      * Sets the repository to use Redis storage
      */
     fun withRedisRepository(jedisPool: redis.clients.jedis.JedisPool): NonceQBuilder {
-        this.repository = com.nonceq.queue.redis.RedisNonceQueueRepository(jedisPool)
+        this.repository = io.github.psychoplasma.nonceq.queue.redis.RedisNonceQueueRepository(jedisPool)
         return this
     }
 

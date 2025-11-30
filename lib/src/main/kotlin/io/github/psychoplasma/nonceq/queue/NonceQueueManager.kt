@@ -1,7 +1,7 @@
-package com.nonceq.queue
+package io.github.psychoplasma.nonceq.queue
 
-import com.nonceq.NonceManager
-import com.nonceq.utils.BlockNonceProvider
+import io.github.psychoplasma.nonceq.NonceManager
+import io.github.psychoplasma.nonceq.utils.BlockNonceProvider
 
 import java.math.BigInteger
 import java.util.concurrent.Semaphore

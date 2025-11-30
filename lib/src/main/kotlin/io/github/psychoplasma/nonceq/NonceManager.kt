@@ -1,4 +1,4 @@
-package com.nonceq
+package io.github.psychoplasma.nonceq
 
 import java.math.BigInteger
 

@@ -1,6 +1,6 @@
-package com.nonceq.queue.redis
+package io.github.psychoplasma.nonceq.queue.redis
 
-import com.nonceq.queue.Nonce
+import io.github.psychoplasma.nonceq.queue.Nonce
 import com.redis.testcontainers.RedisContainer
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.*

@@ -1,7 +1,7 @@
-package com.nonceq.queue.inmemory
+package io.github.psychoplasma.nonceq.queue.inmemory
 
-import com.nonceq.queue.Nonce
-import com.nonceq.queue.NonceQueueRepository
+import io.github.psychoplasma.nonceq.queue.Nonce
+import io.github.psychoplasma.nonceq.queue.NonceQueueRepository
 
 import java.math.BigInteger
 

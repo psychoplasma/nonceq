@@ -1,7 +1,7 @@
-package com.nonceq.queue.redis
+package io.github.psychoplasma.nonceq.queue.redis
 
-import com.nonceq.queue.Nonce
-import com.nonceq.queue.NonceQueueRepository
+import io.github.psychoplasma.nonceq.queue.Nonce
+import io.github.psychoplasma.nonceq.queue.NonceQueueRepository
 import redis.clients.jedis.JedisPool
 import java.math.BigInteger
 
