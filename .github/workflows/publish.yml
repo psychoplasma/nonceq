@@ -31,7 +31,7 @@ jobs:
       - name: Publish to Local Maven Staging
         run: ./gradlew publish --stacktrace --info
       
-      - name: Publish to GitHub Packages
+      - name: Publish to GitHub Packages and Maven Central
         run: ./gradlew jreleaserRelease --stacktrace --info
         env:
           GITHUB_ACTOR: ${{ github.actor }}
