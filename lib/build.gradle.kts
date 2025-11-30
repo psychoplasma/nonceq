@@ -2,10 +2,13 @@ plugins {
     // Apply the org.jetbrains.kotlin.jvm Plugin to add support for Kotlin.
     alias(libs.plugins.kotlin.jvm)
 
+    // Apply the JReleaser plugin for release management.
+    alias(libs.plugins.jreleaser)
+
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
 
-    // Apply the maven-publish plugin for publishing to Maven repositories.
+    // Apply the maven-publish plugin for publishing.
     `maven-publish`
 }
 
@@ -28,6 +31,12 @@ dependencies {
 
 kotlin {
     jvmToolchain(21)
+    explicitApi()
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 tasks.named<Test>("test") {
@@ -45,9 +54,9 @@ publishing {
     publications {
         create<MavenPublication>("mavenJava") {
             from(components["java"])
-            groupId = "com.psychoplasma.nonceq"
+            groupId = "io.github.psychoplasma"
             artifactId = "nonceq"
-            version = project.version.toString()
+            version = "0.1.0"
 
             pom {
                 name = "nonceq"
@@ -63,7 +72,9 @@ publishing {
 
                 developers {
                     developer {
+                        id = "psychoplasma"
                         name = "Mustafa Morca"
+                        email = "mmorca@gmail.com"
                     }
                 }
 
@@ -78,12 +89,50 @@ publishing {
 
     repositories {
         maven {
-            name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/psychoplasma/nonceq")
-            credentials {
-                username = System.getenv("GITHUB_ACTOR") ?: project.findProperty("gpr.user") as? String
-                password = System.getenv("GITHUB_TOKEN") ?: project.findProperty("gpr.key") as? String
+            url = layout.buildDirectory.dir("staging-deploy")
+        }
+    }
+}
+
+jreleaser {
+    project {
+        description = "Nonce queuing manager for nonce-based transaction. Simple LRU queue with reuse and discarding features."
+    }
+
+    signing {
+        active = "ALWAYS"
+        armored = true
+    }
+
+    deploy {
+        maven {
+            github {
+                app {
+                    active = "ALWAYS"
+                    url = "https://maven.pkg.github.com/psychoplasma/nonceq"
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                    stagingRepository("build/staging-deploy")
+                }
             }
+        }
+
+        maven {
+            mavenCentral {
+                sonatype {
+                    active = "ALWAYS"
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    username = System.getenv("JRELEASER_MAVENCENTRAL_USERNAME")
+                    password = System.getenv("JRELEASER_MAVENCENTRAL_PASSWORD")
+                    stagingRepository("build/staging-deploy")
+                }
+            }
+        }
+    }
+
+    release {
+        github {
+            enabled = false
         }
     }
 }
