@@ -89,7 +89,7 @@ publishing {
 
     repositories {
         maven {
-            url = layout.buildDirectory.dir("staging-deploy")
+            url = uri(layout.buildDirectory.dir("staging-deploy"))
         }
     }
 }
