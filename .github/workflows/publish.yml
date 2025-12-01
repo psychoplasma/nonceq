@@ -32,7 +32,7 @@ jobs:
         run: ./gradlew publish --stacktrace --info
       
       - name: Publish to GitHub Packages and Maven Central
-        run: ./gradlew jreleaserRelease --stacktrace --info
+        run: ./gradlew jreleaserDeploy --stacktrace --info
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
