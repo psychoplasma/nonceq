@@ -130,13 +130,8 @@ jreleaser {
         }
     }
 
-    release {
-        github {
-            enabled = false
-        }
-    }
 }
 
-tasks.withType<org.jreleaser.gradle.plugin.tasks.JReleaserDeployTask>().configureEach {
+tasks.withType<org.jreleaser.gradle.plugin.tasks.AbstractJReleaserTask>().configureEach {
     notCompatibleWithConfigurationCache("JReleaser plugin is not compatible with configuration cache")
 }
