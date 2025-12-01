@@ -101,34 +101,38 @@ jreleaser {
 
     signing {
         setActive("ALWAYS")
-        setArmored(true)
+        armored = true
     }
 
     deploy {
         maven {
             github {
-                setActive("ALWAYS")
-                setUrl("https://maven.pkg.github.com/psychoplasma/nonceq")
-                setUsername(System.getenv("GITHUB_ACTOR"))
-                setPassword(System.getenv("GITHUB_TOKEN"))
-                setStagingRepository("build/staging-deploy")
+                create("app") {
+                    setActive("ALWAYS")
+                    url = "https://maven.pkg.github.com/psychoplasma/nonceq"
+                    username = System.getenv("GITHUB_ACTOR")
+                    password = System.getenv("GITHUB_TOKEN")
+                    stagingRepository("build/staging-deploy")
+                }
             }
         }
 
         maven {
             mavenCentral {
-                setActive("ALWAYS")
-                setUrl("https://central.sonatype.com/api/v1/publisher")
-                setUsername(System.getenv("JRELEASER_MAVENCENTRAL_USERNAME"))
-                setPassword(System.getenv("JRELEASER_MAVENCENTRAL_PASSWORD"))
-                setStagingRepository("build/staging-deploy")
+                create("sonatype") {
+                    setActive("ALWAYS")
+                    url = "https://central.sonatype.com/api/v1/publisher"
+                    username = System.getenv("JRELEASER_MAVENCENTRAL_USERNAME")
+                    password = System.getenv("JRELEASER_MAVENCENTRAL_PASSWORD")
+                    stagingRepository("build/staging-deploy")
+                }
             }
         }
     }
 
     release {
         github {
-            setEnabled(false)
+            enabled = false
         }
     }
 }
