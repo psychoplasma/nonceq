@@ -5,7 +5,7 @@ import io.github.psychoplasma.nonceq.queue.NonceQueueRepository
 import redis.clients.jedis.JedisPool
 import java.math.BigInteger
 
-class RedisNonceQueueRepository(
+public class RedisNonceQueueRepository(
     private val jedisPool: JedisPool,
     private val keyPrefix: String = "nonceq"
 ) : NonceQueueRepository {

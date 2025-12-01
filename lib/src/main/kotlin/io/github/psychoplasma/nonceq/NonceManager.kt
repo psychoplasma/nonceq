@@ -3,10 +3,10 @@ package io.github.psychoplasma.nonceq
 import java.math.BigInteger
 
 
-interface NonceManager {
-    fun getNextValidNonce(address: String): BigInteger
+public interface NonceManager {
+    public fun getNextValidNonce(address: String): BigInteger
 
-    fun useNonce(address: String, nonce: BigInteger, txId: String? = null)
+    public fun useNonce(address: String, nonce: BigInteger, txId: String? = null)
 
-    fun discardNonce(address: String, nonce: BigInteger, errorMessage: String? = null)
+    public fun discardNonce(address: String, nonce: BigInteger, errorMessage: String? = null)
 }

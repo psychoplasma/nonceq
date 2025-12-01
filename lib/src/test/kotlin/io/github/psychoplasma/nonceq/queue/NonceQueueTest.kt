@@ -1,6 +1,5 @@
 package io.github.psychoplasma.nonceq.queue
 
-import io.github.psychoplasma.nonceq.queue.*
 import io.github.psychoplasma.nonceq.queue.inmemory.InMemoryNonceQueueRepository
 import io.github.psychoplasma.nonceq.Utils.generateAddress
 

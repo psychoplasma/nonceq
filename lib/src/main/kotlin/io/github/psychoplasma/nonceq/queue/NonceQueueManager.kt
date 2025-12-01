@@ -7,7 +7,7 @@ import java.math.BigInteger
 import java.util.concurrent.Semaphore
 
 
-class NonceQueueManager(
+internal class NonceQueueManager(
     private val blockNonceProvider: BlockNonceProvider,
     private val nonceQueue: NonceQueue,
 ) : NonceManager {

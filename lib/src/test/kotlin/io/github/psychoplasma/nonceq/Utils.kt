@@ -83,7 +83,6 @@ object Utils {
         parallelism: Int = 2000,
         function: suspend (index: Int) -> Unit,
     ): List<Deferred<Unit>> {
-        @OptIn(ExperimentalCoroutinesApi::class)
         val scope = CoroutineScope(SupervisorJob()
             + Dispatchers.Default.limitedParallelism(parallelism)
         )
@@ -100,7 +99,6 @@ object Utils {
         function: suspend (index: Int) -> Unit,
     ): List<Deferred<Unit>> {
         val results = mutableListOf<Deferred<Unit>>()
-        @OptIn(ExperimentalCoroutinesApi::class)
         val scope = CoroutineScope(SupervisorJob()
             + Dispatchers.Default.limitedParallelism(parallelism)
         )
@@ -124,7 +122,6 @@ object Utils {
         function: suspend (index: Int) -> Unit,
     ): List<Deferred<Unit>> {
         val results = mutableListOf<Deferred<Unit>>()
-        @OptIn(ExperimentalCoroutinesApi::class)
         val scope = CoroutineScope(SupervisorJob()
             + Dispatchers.Default.limitedParallelism(parallelism)
         )

@@ -25,17 +25,17 @@ import java.math.BigInteger
  * nonceManager.useNonce("0x1234...", nonce)
  * ```
  */
-object NonceQ {
+public object NonceQ {
     /**
      * Creates a new builder for configuring NonceQ
      */
-    fun builder(): NonceQBuilder = NonceQBuilder()
+    public fun builder(): NonceQBuilder = NonceQBuilder()
 }
 
 /**
  * Builder for creating configured [NonceManager] instances
  */
-class NonceQBuilder {
+public class NonceQBuilder {
     private var repository: NonceQueueRepository? = null
     private var blockNonceProvider: BlockNonceProvider? = null
     private var queueCapacity: Long = 100L
@@ -44,7 +44,7 @@ class NonceQBuilder {
     /**
      * Sets the repository to use in-memory storage
      */
-    fun withInMemoryRepository(): NonceQBuilder {
+    public fun withInMemoryRepository(): NonceQBuilder {
         this.repository = InMemoryNonceQueueRepository()
         return this
     }
@@ -52,7 +52,7 @@ class NonceQBuilder {
     /**
      * Sets a custom repository implementation
      */
-    fun withRepository(repository: NonceQueueRepository): NonceQBuilder {
+    public fun withRepository(repository: NonceQueueRepository): NonceQBuilder {
         this.repository = repository
         return this
     }
@@ -60,7 +60,7 @@ class NonceQBuilder {
     /**
      * Sets the repository to use Redis storage
      */
-    fun withRedisRepository(jedisPool: redis.clients.jedis.JedisPool): NonceQBuilder {
+    public fun withRedisRepository(jedisPool: redis.clients.jedis.JedisPool): NonceQBuilder {
         this.repository = io.github.psychoplasma.nonceq.queue.redis.RedisNonceQueueRepository(jedisPool)
         return this
     }
@@ -68,7 +68,7 @@ class NonceQBuilder {
     /**
      * Sets the block nonce provider (required)
      */
-    fun withBlockNonceProvider(provider: BlockNonceProvider): NonceQBuilder {
+    public fun withBlockNonceProvider(provider: BlockNonceProvider): NonceQBuilder {
         this.blockNonceProvider = provider
         return this
     }
@@ -77,7 +77,7 @@ class NonceQBuilder {
      * Sets the maximum capacity of the nonce queue
      * Default: 100
      */
-    fun withQueueCapacity(capacity: Long): NonceQBuilder {
+    public fun withQueueCapacity(capacity: Long): NonceQBuilder {
         this.queueCapacity = capacity
         return this
     }
@@ -86,7 +86,7 @@ class NonceQBuilder {
      * Sets the expiry time for unused nonces in milliseconds
      * Default: 10,000 ms (10 seconds)
      */
-    fun withNonceExpiry(expiryMs: Long): NonceQBuilder {
+    public fun withNonceExpiry(expiryMs: Long): NonceQBuilder {
         this.nonceExpiry = expiryMs
         return this
     }
@@ -94,7 +94,7 @@ class NonceQBuilder {
     /**
      * Builds the NonceManager instance
      */
-    fun build(): NonceManager {
+    public fun build(): NonceManager {
         val repo = repository ?:
             throw IllegalStateException("Repository must be configured")
         val provider = blockNonceProvider ?:

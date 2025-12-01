@@ -8,8 +8,8 @@ import java.math.BigInteger
 /**
  * In-memory implementation of [NonceQueueRepository] using a mutable list
  */
-class InMemoryNonceQueueRepository : NonceQueueRepository {
-    data class Queue(
+public class InMemoryNonceQueueRepository : NonceQueueRepository {
+    private data class Queue(
         var head: BigInteger,
         var tail: BigInteger,
         var queue: HashMap<String, Nonce>,

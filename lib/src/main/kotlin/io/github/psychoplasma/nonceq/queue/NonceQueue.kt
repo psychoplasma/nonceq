@@ -25,7 +25,7 @@ import mu.KotlinLogging
  *
  * And there is only one queue for every different address space
  */
-class NonceQueue(
+internal class NonceQueue(
     private val repository: NonceQueueRepository,
     private val capacity: Long,
     private val expiry: Long = 10_000L,
