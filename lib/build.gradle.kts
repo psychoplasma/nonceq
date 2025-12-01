@@ -95,32 +95,34 @@ publishing {
 }
 
 jreleaser {
+    gitRootSearch.set(true)
+
+    project {
+        description.set("Nonce queuing manager for nonce-based transaction. Simple LRU queue with reuse and discarding features.")
+    }
+
     signing {
         setActive("ALWAYS")
-        armored = true
+        armored.set(true)
     }
 
     deploy {
         maven {
-            github {
-                create("app") {
-                    setActive("ALWAYS")
-                    url = "https://maven.pkg.github.com/psychoplasma/nonceq"
-                    username = System.getenv("GITHUB_ACTOR")
-                    password = System.getenv("GITHUB_TOKEN")
-                    stagingRepository("build/staging-deploy")
-                }
-            }
-
             mavenCentral {
                 create("sonatype") {
                     setActive("ALWAYS")
-                    url = "https://central.sonatype.com/api/v1/publisher"
-                    username = System.getenv("JRELEASER_MAVENCENTRAL_USERNAME")
-                    password = System.getenv("JRELEASER_MAVENCENTRAL_PASSWORD")
+                    url.set("https://central.sonatype.com/api/v1/publisher")
+                    username.set(System.getenv("JRELEASER_MAVENCENTRAL_USERNAME"))
+                    password.set(System.getenv("JRELEASER_MAVENCENTRAL_PASSWORD"))
                     stagingRepository("build/staging-deploy")
                 }
             }
+        }
+    }
+
+    release {
+        github {
+            enabled.set(false)
         }
     }
 }
