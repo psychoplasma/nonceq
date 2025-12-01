@@ -137,6 +137,6 @@ jreleaser {
     }
 }
 
-tasks.withType<org.jreleaser.gradle.plugin.tasks.JReleaserReleaseTask>().configureEach {
+tasks.withType<org.jreleaser.gradle.plugin.tasks.JReleaserDeployTask>().configureEach {
     notCompatibleWithConfigurationCache("JReleaser plugin is not compatible with configuration cache")
 }
