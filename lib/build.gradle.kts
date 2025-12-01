@@ -95,10 +95,6 @@ publishing {
 }
 
 jreleaser {
-    project {
-        description = "Nonce queuing manager for nonce-based transaction. Simple LRU queue with reuse and discarding features."
-    }
-
     signing {
         setActive("ALWAYS")
         armored = true
@@ -115,9 +111,7 @@ jreleaser {
                     stagingRepository("build/staging-deploy")
                 }
             }
-        }
 
-        maven {
             mavenCentral {
                 create("sonatype") {
                     setActive("ALWAYS")
@@ -129,7 +123,6 @@ jreleaser {
             }
         }
     }
-
 }
 
 tasks.withType<org.jreleaser.gradle.plugin.tasks.AbstractJReleaserTask>().configureEach {
