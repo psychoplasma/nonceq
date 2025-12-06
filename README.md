@@ -17,14 +17,6 @@ Add the dependency to your `build.gradle.kts`:
 ```kotlin
 repositories {
     mavenCentral()
-    maven {
-        name = "GitHubPackages"
-        url = uri("https://maven.pkg.github.com/psychoplasma/nonceq")
-        credentials {
-            username = System.getenv("GITHUB_ACTOR")
-            password = System.getenv("GITHUB_TOKEN")
-        }
-    }
 }
 
 dependencies {
@@ -38,11 +30,36 @@ dependencies {
 
 ### Initialization
 
-You need a `BlockNonceProvider` to fetch the current nonce from the blockchain when the queue is empty.
+You need a `BlockNonceProvider` to fetch the current nonce from the blockchain when initializing the queue, also after reseting the queue.
+
+Web3j-backed nonce provider comes out-of-the-box.
 
 ```kotlin
+import org.web3j.protocol.Web3j
+
 val web3j = Web3j.build(HttpService("https://..."))
-val blockNonceProvider = Web3jBlockNonceProvider(web3j)
+
+NonceQ.builder()
+    .withWeb3jBlockNonceProvider(web3j)
+    ...
+```
+
+Also, you can bring your own nonce provider by implementing `io.github.psychoplasma.nonceq.utils.BlockNonceProvider` interface.
+
+```kotlin
+class CustomBlockNonceProvider : BlockNonceProvider {
+    override fun getBlockNonce(address: String): BigInteger {
+        // Fetch latest nonce for the given address with your custom logic
+        ...
+        return latestNonce
+    }
+}
+
+...
+
+NonceQ.builder()
+    .withBlockNonceProvider(CustomBlockNonceProvider())
+    ...
 ```
 
 ### In-Memory Backend
@@ -52,7 +69,7 @@ Suitable for single-instance applications.
 ```kotlin
 val nonceManager = NonceQ.builder()
     .withInMemoryRepository()
-    .withBlockNonceProvider(blockNonceProvider)
+    .withWeb3jBlockNonceProvider(web3j)
     .withQueueCapacity(100)
     .withNonceExpiry(10_000) // 10 seconds
     .build()
@@ -67,7 +84,7 @@ val jedisPool = JedisPool("localhost", 6379)
 
 val nonceManager = NonceQ.builder()
     .withRedisRepository(jedisPool)
-    .withBlockNonceProvider(blockNonceProvider)
+    .withBlockNonceProvider(web3j)
     .build()
 ```
 
@@ -89,7 +106,7 @@ try {
     nonceManager.useNonce(address, nonce, txHash)
     
 } catch (e: Exception) {
-    // If transaction failed, discard the nonce so it can be reused
+    // If transaction failed(like not making to blockchain at all), discard the nonce so it can be reused
     nonceManager.discardNonce(address, nonce, e.message)
 }
 ```

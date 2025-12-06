@@ -4,7 +4,10 @@ import io.github.psychoplasma.nonceq.queue.NonceQueue
 import io.github.psychoplasma.nonceq.queue.NonceQueueManager
 import io.github.psychoplasma.nonceq.queue.NonceQueueRepository
 import io.github.psychoplasma.nonceq.queue.inmemory.InMemoryNonceQueueRepository
+import io.github.psychoplasma.nonceq.queue.redis.RedisNonceQueueRepository
 import io.github.psychoplasma.nonceq.utils.BlockNonceProvider
+import io.github.psychoplasma.nonceq.utils.Web3jBlockNonceProvider
+import org.web3j.protocol.Web3j
 
 import java.math.BigInteger
 
@@ -61,15 +64,23 @@ public class NonceQBuilder {
      * Sets the repository to use Redis storage
      */
     public fun withRedisRepository(jedisPool: redis.clients.jedis.JedisPool): NonceQBuilder {
-        this.repository = io.github.psychoplasma.nonceq.queue.redis.RedisNonceQueueRepository(jedisPool)
+        this.repository = RedisNonceQueueRepository(jedisPool)
         return this
     }
 
     /**
-     * Sets the block nonce provider (required)
+     * Sets the block nonce provider
      */
     public fun withBlockNonceProvider(provider: BlockNonceProvider): NonceQBuilder {
         this.blockNonceProvider = provider
+        return this
+    }
+
+    /**
+     * Sets the block nonce provider to use Web3j (required)
+     */
+    public fun withWeb3jBlockNonceProvider(web3j: Web3j): NonceQBuilder {
+        this.blockNonceProvider = Web3jBlockNonceProvider(web3j)
         return this
     }
 
