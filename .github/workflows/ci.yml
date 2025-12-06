@@ -37,6 +37,7 @@ jobs:
         with:
           generate-branches-badge: true
           jacoco-csv-file: lib/build/reports/jacoco/test/jacocoTestReport.csv
+          coverage-badge-filename:  coverage.svg
 
       - name: Log coverage percentages to workflow output
         run: |
