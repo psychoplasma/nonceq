@@ -1,3 +1,4 @@
+![Coverage](.github/badges/jacoco.svg) ![Branches](.github/badges/branches.svg)
 # NonceQ
 
 Nonce queuing manager for nonce-based transactions (e.g., Ethereum). It provides a simple LRU queue with reuse and discarding features to manage nonces sequentially, even with concurrent requests.

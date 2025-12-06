@@ -5,6 +5,9 @@ plugins {
     // Apply the JReleaser plugin for release management.
     alias(libs.plugins.jreleaser)
 
+    // Apply the jacoco plugin for code coverage.
+    `jacoco`
+
     // Apply the java-library plugin for API and implementation separation.
     `java-library`
 
@@ -47,6 +50,14 @@ tasks.named<Test>("test") {
     testLogging {
         events("passed", "failed")
         showStandardStreams = true
+    }
+
+    finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+    reports {
+        csv.required.set(true)
     }
 }
 
