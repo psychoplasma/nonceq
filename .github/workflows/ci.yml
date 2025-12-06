@@ -2,10 +2,10 @@ name: Run Tests and Generate Coverage Report
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths: [ '**.kt', '.github/workflows/ci.yml' ]
   pull_request:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   publish:
