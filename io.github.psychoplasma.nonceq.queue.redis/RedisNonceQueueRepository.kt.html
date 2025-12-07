@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RedisNonceQueueRepository.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lib</a> &gt; <a href="index.source.html" class="el_package">io.github.psychoplasma.nonceq.queue.redis</a> &gt; <span class="el_source">RedisNonceQueueRepository.kt</span></div><h1>RedisNonceQueueRepository.kt</h1><pre class="source lang-java linenums">package io.github.psychoplasma.nonceq.queue.redis
+
+import io.github.psychoplasma.nonceq.queue.Nonce
+import io.github.psychoplasma.nonceq.queue.NonceQueueRepository
+import redis.clients.jedis.JedisPool
+import java.math.BigInteger
+
+<span class="fc" id="L8">public class RedisNonceQueueRepository(</span>
+<span class="fc" id="L9">    private val jedisPool: JedisPool,</span>
+<span class="fc" id="L10">    private val keyPrefix: String = &quot;nonceq&quot;</span>
+<span class="fc" id="L11">) : NonceQueueRepository {</span>
+
+    override fun getHead(address: String): BigInteger {
+<span class="fc" id="L14">        jedisPool.resource.use { jedis -&gt;</span>
+<span class="fc" id="L15">            val head = jedis.get(headKey(address))</span>
+<span class="pc bfc" id="L16" title="All 2 branches covered.">            return if (head != null) BigInteger(head) else BigInteger.ZERO</span>
+        }
+    }
+
+    override fun setHead(address: String, value: BigInteger) {
+<span class="pc" id="L21">        jedisPool.resource.use { jedis -&gt;</span>
+<span class="fc" id="L22">            jedis.set(headKey(address), value.toString())</span>
+        }
+<span class="fc" id="L24">    }</span>
+
+    override fun getTail(address: String): BigInteger {
+<span class="fc" id="L27">        jedisPool.resource.use { jedis -&gt;</span>
+<span class="fc" id="L28">            val tail = jedis.get(tailKey(address))</span>
+<span class="pc bfc" id="L29" title="All 2 branches covered.">            return if (tail != null) BigInteger(tail) else BigInteger.ZERO</span>
+        }
+    }
+
+    override fun setTail(address: String, value: BigInteger) {
+<span class="pc" id="L34">        jedisPool.resource.use { jedis -&gt;</span>
+<span class="fc" id="L35">            jedis.set(tailKey(address), value.toString())</span>
+        }
+<span class="fc" id="L37">    }</span>
+
+    override fun getNonce(address: String, value: BigInteger): Nonce? {
+<span class="fc" id="L40">        jedisPool.resource.use { jedis -&gt;</span>
+<span class="fc" id="L41">            val nonceStr = jedis.hget(queueKey(address), value.toString())</span>
+<span class="pc bfc" id="L42" title="All 2 branches covered.">            return if (nonceStr != null) parseNonce(nonceStr) else null</span>
+        }
+    }
+
+    override fun putNonce(address: String, value: BigInteger, nonce: Nonce) {
+<span class="pc" id="L47">        jedisPool.resource.use { jedis -&gt;</span>
+<span class="fc" id="L48">            jedis.hset(queueKey(address), value.toString(), serializeNonce(nonce))</span>
+        }
+<span class="fc" id="L50">    }</span>
+
+    override fun deleteNonce(address: String, value: BigInteger) {
+<span class="pc" id="L53">        jedisPool.resource.use { jedis -&gt;</span>
+<span class="fc" id="L54">            jedis.hdel(queueKey(address), value.toString())</span>
+        }
+<span class="fc" id="L56">    }</span>
+
+    override fun size(address: String): Long {
+<span class="fc" id="L59">        jedisPool.resource.use { jedis -&gt;</span>
+<span class="pc" id="L60">            return jedis.hlen(queueKey(address))</span>
+        }
+    }
+
+    override fun clear(address: String) {
+<span class="pc" id="L65">        jedisPool.resource.use { jedis -&gt;</span>
+<span class="fc" id="L66">            val pipeline = jedis.pipelined()</span>
+<span class="fc" id="L67">            pipeline.del(headKey(address))</span>
+<span class="fc" id="L68">            pipeline.del(tailKey(address))</span>
+<span class="fc" id="L69">            pipeline.del(queueKey(address))</span>
+<span class="fc" id="L70">            pipeline.sync()</span>
+<span class="fc" id="L71">        }</span>
+<span class="fc" id="L72">    }</span>
+
+<span class="fc" id="L74">    private fun headKey(address: String) = &quot;$keyPrefix:$address:head&quot;</span>
+<span class="fc" id="L75">    private fun tailKey(address: String) = &quot;$keyPrefix:$address:tail&quot;</span>
+<span class="fc" id="L76">    private fun queueKey(address: String) = &quot;$keyPrefix:$address:queue&quot;</span>
+
+    // Simple serialization for Nonce object
+    // Format: value:used:insertedAt
+    private fun serializeNonce(nonce: Nonce): String {
+<span class="fc" id="L81">        return &quot;${nonce.value}:${nonce.used}:${nonce.insertedAt}&quot;</span>
+    }
+
+    private fun parseNonce(str: String): Nonce {
+<span class="fc" id="L85">        val parts = str.split(&quot;:&quot;)</span>
+<span class="fc" id="L86">        return Nonce(parts[0], parts[1].toBoolean(), parts[2].toLong())</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

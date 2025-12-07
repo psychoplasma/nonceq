@@ -1,0 +1,285 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NonceQueue.kt</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">lib</a> &gt; <a href="index.source.html" class="el_package">io.github.psychoplasma.nonceq.queue</a> &gt; <span class="el_source">NonceQueue.kt</span></div><h1>NonceQueue.kt</h1><pre class="source lang-java linenums">package io.github.psychoplasma.nonceq.queue
+
+import java.math.BigInteger
+import java.time.Instant
+
+import mu.KotlinLogging
+
+
+/**
+ * Circular Queue implementation for incremental nonce values
+ *
+ * Circular Queue structure contains three variables
+ *  - `head`: cursor indicates the most recent record in the queue
+ *  - `tail`: cursor indicates the oldest record in the queue
+ *  - `queue`: mapping(nonce value =&gt; nonce record), keeps incremental nonce records
+ *
+ *  ```
+ *  fifo queue with capacity n
+ *  __________________________________
+ *  |  k  | k+1 | .. | .. | .. |k+n-1|
+ *  __________________________________
+ *    ^                           ^
+ *   tail                        head
+ *  ```
+ *
+ * And there is only one queue for every different address space
+ */
+<span class="pc" id="L28">internal class NonceQueue(</span>
+<span class="fc" id="L29">    private val repository: NonceQueueRepository,</span>
+<span class="fc" id="L30">    private val capacity: Long,</span>
+<span class="pc" id="L31">    private val expiry: Long = 10_000L,</span>
+<span class="nc" id="L32">) {</span>
+<span class="pc" id="L33">    private val logger = KotlinLogging.logger {}</span>
+
+<span class="fc" id="L35">    class QueueOverflowException(message: String) : IllegalStateException(message)</span>
+
+    /**
+     * Inserts [value], and sets head and tail to [value].
+     *
+     * This should be used only for initialization,
+     * otherwise queue can behave unexpectedly!
+     */
+    fun insert(address: String, value: BigInteger) {
+<span class="fc bfc" id="L44" title="All 2 branches covered.">        if (!has(address, value)) {</span>
+<span class="fc" id="L45">            repository.setHead(address, value)</span>
+<span class="fc" id="L46">            repository.setTail(address, value)</span>
+
+            // Create a new nonce record
+<span class="fc" id="L49">            repository.putNonce(</span>
+<span class="fc" id="L50">                address,</span>
+<span class="fc" id="L51">                value,</span>
+<span class="fc" id="L52">                Nonce(value.toString(), false, Instant.now().toEpochMilli()),</span>
+            )
+
+<span class="pc" id="L55">            logger.debug { &quot;Inserting initial nonce: $value for $address&quot; }</span>
+        }
+<span class="fc" id="L57">    }</span>
+
+    /**
+     * Returns the next value from the queue.
+     * Also, it will try to remove the tail in each iteration.
+     *
+     * ```
+     *  Iteration works as follows;
+     *
+     *  Let's say there are skipped values in slots k+2 and k+4,
+     *  and the head is at k+1.
+     *  ______________________________________________
+     *  |  k  | k+1 | empty | k+3 | empty | .. |k+n-1|
+     *  ______________________________________________
+     *    ^      ^
+     *   tail   head
+     *
+     *  if we request the next value, k+2 will be returned
+     *  and the head will move to k+2.
+     *  ____________________________________________
+     *  |  k  | k+1 | k+2 | k+3 | empty | .. |k+n-1|
+     *  ____________________________________________
+     *    ^            ^
+     *   tail         head
+     *
+     *  However the next value is already in use and the one after
+     *  the next value is available. And if we request a next value,
+     *  k+3 will be skipped due to the fact that it is already in use.
+     *  The head will move to k+3. And it will iterate to the next slot
+     *  until it find an empty one.
+     *  ____________________________________________
+     *  |  k  | k+1 | k+2 | k+3 | empty | .. |k+n-1|
+     *  ____________________________________________
+     *    ^                 ^
+     *   tail              head
+     *
+     *  And finally it will return the empty slot's value
+     *  ____________________________________________
+     *  |  k  | k+1 | k+2 | k+3 | empty | .. |k+n-1|
+     *  ____________________________________________
+     *    ^                        ^
+     *   tail                     head
+     * ```
+     *
+     * If the queue has already reached its capacity,
+     * throws [QueueOverflowException].
+     */
+    fun next(address: String): BigInteger {
+        // If the queue size reaches the max capacity,
+        // do not move any forward (don't accept any request),
+        // instead throw an exception which should be handled in the caller.
+<span class="fc bfc" id="L108" title="All 2 branches covered.">        while (!isFull(address)) {</span>
+            // Remove the tail if it is used which
+            // prevents the queue from growing indefinitely.
+            // OR remove expired record from the tail.
+<span class="fc" id="L112">            removeTail(address)</span>
+
+            // Move cursor to the next value
+<span class="fc" id="L115">            val head = repository.getHead(address).inc()</span>
+<span class="fc" id="L116">            repository.setHead(address, head)</span>
+
+            // If there is no record at the head, or it's expired, use it
+            if (
+<span class="fc bfc" id="L120" title="All 2 branches covered.">                !has(address, head)</span>
+<span class="fc bfc" id="L121" title="All 2 branches covered.">                || repository.getNonce(address, head)!!.isExpired(expiry)</span>
+            ) {
+                // Create a new nonce record
+<span class="fc" id="L124">                repository.putNonce(</span>
+<span class="fc" id="L125">                    address,</span>
+<span class="fc" id="L126">                    head,</span>
+<span class="fc" id="L127">                    Nonce(head.toString(), false, Instant.now().toEpochMilli()),</span>
+                )
+
+<span class="pc" id="L130">                logger.debug { &quot;Next nonce: $head for $address&quot; }</span>
+<span class="fc" id="L131">                return head</span>
+            }
+
+            // If there is a record at the head which is not expired, then iterate to the next value.
+            // Iteration will find an unused value (with no record) or
+            // it will throw a QueueOverflowException when it hits the capacity
+        }
+
+<span class="fc" id="L139">        throw QueueOverflowException(</span>
+<span class="fc" id="L140">            &quot;nonce queue is full for address: $address with capacity: $capacity&quot;,</span>
+        )
+    }
+
+    /**
+     * Removes [value] from the queue and sets head to the value
+     * right before [value] so that the removed [value] can be used
+     * again in the next iteration/s.
+     *
+     * ```
+     *  __________________________________
+     *  |  k  | k+1 | .. | .. | .. |k+n-1|
+     *  __________________________________
+     *    ^                           ^
+     *   tail                        head
+     *
+     *  if the value k+2 is removed, then head moves to k+1.
+     *  ____________________________________________
+     *  |  k  | k+1 | empty | k+3 | k+4 | .. |k+n-1|
+     *  ____________________________________________
+     *    ^      ^
+     *   tail   head
+     *
+     *  In the next iteration/s, k+2 will be available again.
+     * ```
+     *
+     * Notice that if there is removed value/s with a lower number,
+     * then it won't update the head so that the lower value/s can be used first.
+     * ```
+     *  For example, with the above case, if the value k+4, also, is removed,
+     *  then head won't move to slot k+3, instead it will stay at k+1
+     *  because there is already empty slot with a lower value which is k+2.
+     *  ______________________________________________
+     *  |  k  | k+1 | empty | k+3 | empty | .. |k+n-1|
+     *  _____________________________________________
+     *    ^      ^
+     *   tail   head
+     * ```
+     */
+    fun remove(address: String, value: BigInteger) {
+<span class="fc bfc" id="L180" title="All 2 branches covered.">        if (has(address, value)) {</span>
+<span class="pc" id="L181">            logger.debug { &quot;Discarding nonce: $value for $address&quot; }</span>
+
+<span class="fc" id="L183">            repository.deleteNonce(address, value)</span>
+
+<span class="fc" id="L185">            var head = repository.getHead(address)</span>
+
+<span class="fc bfc" id="L187" title="All 2 branches covered.">            if (head &gt;= value) {</span>
+                // Move the head to the value right before the removed value
+                // so that, in the next iteration/s, the removed value can be used again
+<span class="fc" id="L190">                head = value.dec()</span>
+<span class="fc" id="L191">                repository.setHead(address, head)</span>
+
+<span class="pc" id="L193">                logger.debug { &quot;Moving head to: $head for $address&quot; }</span>
+            }
+            // If the head has already been moved to a lower value previously
+            // (i.e. skipped nonce with lower value), then do not update the head.
+        }
+<span class="fc" id="L198">    }</span>
+
+    /**
+     * Marks [value] as used for later removal from the tail.
+     */
+    fun markUsed(address: String, value: BigInteger) {
+<span class="fc bfc" id="L204" title="All 2 branches covered.">        if (has(address, value)) {</span>
+<span class="fc" id="L205">            val nonce = repository.getNonce(address, value)</span>
+<span class="fc" id="L206">            nonce!!.used = true</span>
+<span class="fc" id="L207">            repository.putNonce(address, value, nonce)</span>
+        }
+<span class="fc" id="L209">    }</span>
+
+    /**
+     * Checks if the queue is empty.
+     *
+     * Notice that size of zero doesn't always mean that the queue is empty.
+     * Even though size is zero, head cursor can point a next value.
+     * For example if a value is requested and then removed, assuming
+     * that the tail is the previous value (requested value - 1) which
+     * will be removed upon requesting the next value, then he head will
+     * move to previous value, although there is no record in the queue.
+     */
+    fun isEmpty(address: String): Boolean {
+<span class="fc" id="L222">        val head = repository.getHead(address)</span>
+<span class="pc bpc" id="L223" title="1 of 4 branches missed.">        return repository.size(address) == 0L &amp;&amp; head == BigInteger.ZERO</span>
+    }
+
+    /**
+     * Removes all the records from the queue and reset head and tail cursors
+     */
+    fun reset(address: String) {
+<span class="fc" id="L230">        repository.clear(address)</span>
+<span class="pc" id="L231">        logger.debug { &quot;Resetting nonce queue for $address&quot; }</span>
+<span class="fc" id="L232">    }</span>
+
+    /**
+     * Checks if there is a record with the given [value]
+     */
+    fun has(address: String, value: BigInteger): Boolean {
+<span class="fc bfc" id="L238" title="All 2 branches covered.">        return repository.getNonce(address, value) != null</span>
+    }
+
+    /**
+     * Removes the tail recursively if it is marked as used,
+     * not to grow the queue indefinitely.
+     * OR removes an expired record from the tail(not recursively).
+     */
+    private fun removeTail(address: String) {
+<span class="fc" id="L247">        while (true) {</span>
+<span class="fc" id="L248">            val tail = repository.getTail(address)</span>
+<span class="fc bfc" id="L249" title="All 2 branches covered.">            val tailNonce = repository.getNonce(address, tail) ?: return</span>
+
+            // Remove the tail if it's already used
+<span class="fc bfc" id="L252" title="All 2 branches covered.">            if (tailNonce.used) {</span>
+<span class="fc" id="L253">                logger.debug {</span>
+<span class="nc" id="L254">                    &quot;Removing tail nonce: ${tailNonce.value} for $address&quot;</span>
+                }
+<span class="fc" id="L256">                repository.deleteNonce(address, tail)</span>
+<span class="fc" id="L257">                repository.setTail(address, tail.inc())</span>
+
+                // Remove tail till head
+<span class="fc bfc" id="L260" title="All 2 branches covered.">                if (tail &lt; repository.getHead(address)) {</span>
+<span class="fc" id="L261">                    continue</span>
+                }
+            }
+            // If not used but expired, remove the record at the tail slot to use it again.
+            // Notice that expired means the record is not used either discarded
+            // in the given period of time. So we have to discard it by force
+            // with the assumption that it's not submitted to blockchain.
+<span class="fc bfc" id="L268" title="All 2 branches covered.">            else if (tailNonce.isExpired(expiry)) {</span>
+<span class="fc" id="L269">                logger.debug {</span>
+<span class="nc" id="L270">                    &quot;Expired nonce: ${tailNonce.value} for $address&quot;</span>
+                }
+<span class="fc" id="L272">                remove(address, tail)</span>
+                // Do not update tail cursor, because we are just
+                // emptying a slot to use in the next iteration.
+            }
+
+<span class="fc" id="L277">            break</span>
+        }
+<span class="fc" id="L279">    }</span>
+
+    private fun isFull(address: String): Boolean {
+<span class="fc bfc" id="L282" title="All 2 branches covered.">        return repository.size(address) == capacity</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
