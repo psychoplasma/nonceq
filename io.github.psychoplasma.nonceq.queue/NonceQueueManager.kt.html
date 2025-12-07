@@ -67,7 +67,7 @@ import java.util.concurrent.Semaphore
         }
 <span class="fc" id="L68">    }</span>
 
-    fun reset(address: String) {
+    override fun reset(address: String) {
 <span class="fc" id="L71">        semaphore.acquire()</span>
 <span class="fc" id="L72">        try {</span>
 <span class="fc" id="L73">            nonceQueue.reset(address.lowercase())</span>

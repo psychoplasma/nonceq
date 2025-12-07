@@ -4,10 +4,29 @@ import java.math.BigInteger
 
 
 public interface NonceManager {
+    /*
+     * Gets the next valid nonce for the given address.
+     * If the nonce queue is empty, it fetches the nonce from the BlockNonceProvider.
+     * Thread-safe to call from multiple coroutines.
+     */
     public fun getNextValidNonce(address: String): BigInteger
 
-<span class="nc" id="L9">    public fun useNonce(address: String, nonce: BigInteger, txId: String? = null)</span>
+    /*
+     * Marks the given nonce as used for the specified address.
+     * Optionally, a transaction ID can be provided to associate with the nonce.
+     * The nonce will be removed from the queue upon calling [NonceManager.getNextValidNonce].
+     * Thread-safe to call from multiple coroutines.
+     */
+<span class="nc" id="L20">    public fun useNonce(address: String, nonce: BigInteger, txId: String? = null)</span>
 
-<span class="nc" id="L11">    public fun discardNonce(address: String, nonce: BigInteger, errorMessage: String? = null)</span>
+    /*
+     * Discards the given nonce for the specified address, optionally providing an error message.
+     */
+<span class="nc" id="L25">    public fun discardNonce(address: String, nonce: BigInteger, errorMessage: String? = null)</span>
+
+    /*
+     * Resets the nonce queue for the specified address.
+     */
+    public fun reset(address: String)
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
