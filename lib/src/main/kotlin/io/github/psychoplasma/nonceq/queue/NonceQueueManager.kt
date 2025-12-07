@@ -67,7 +67,7 @@ internal class NonceQueueManager(
         }
     }
 
-    fun reset(address: String) {
+    override fun reset(address: String) {
         semaphore.acquire()
         try {
             nonceQueue.reset(address.lowercase())
