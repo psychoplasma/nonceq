@@ -25,6 +25,7 @@ dependencies {
     testImplementation(libs.testcontainers.redis)
     testImplementation(libs.testcontainers.junit.jupiter)
     testImplementation(libs.testcontainers)
+    testImplementation(libs.mockk)
 
     implementation(libs.web3j.core)
     implementation(libs.kotlin.logging)
