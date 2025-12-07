@@ -1,4 +1,4 @@
-![Coverage](.github/badges/coverage.svg)
+[![Coverage](https://github.com/psychoplasma/nonceq/blob/gh-pages/badges/coverage.svg?raw=true)](https://psychoplasma.github.io/nonceq/)
 ![Branches](.github/badges/branches.svg)
 # NonceQ
 
