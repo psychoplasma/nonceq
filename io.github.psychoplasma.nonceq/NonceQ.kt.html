@@ -32,56 +32,56 @@ public object NonceQ {
     /**
      * Creates a new builder for configuring NonceQ
      */
-<span class="nc" id="L35">    public fun builder(): NonceQBuilder = NonceQBuilder()</span>
+<span class="fc" id="L35">    public fun builder(): NonceQBuilder = NonceQBuilder()</span>
 }
 
 /**
  * Builder for creating configured [NonceManager] instances
  */
-<span class="nc" id="L41">public class NonceQBuilder {</span>
+<span class="fc" id="L41">public class NonceQBuilder {</span>
     private var repository: NonceQueueRepository? = null
     private var blockNonceProvider: BlockNonceProvider? = null
-<span class="nc" id="L44">    private var queueCapacity: Long = 100L</span>
-<span class="nc" id="L45">    private var nonceExpiry: Long = 10_000L</span>
+<span class="fc" id="L44">    private var queueCapacity: Long = 100L</span>
+<span class="fc" id="L45">    private var nonceExpiry: Long = 10_000L</span>
 
     /**
      * Sets the repository to use in-memory storage
      */
     public fun withInMemoryRepository(): NonceQBuilder {
-<span class="nc" id="L51">        this.repository = InMemoryNonceQueueRepository()</span>
-<span class="nc" id="L52">        return this</span>
+<span class="fc" id="L51">        this.repository = InMemoryNonceQueueRepository()</span>
+<span class="fc" id="L52">        return this</span>
     }
 
     /**
      * Sets a custom repository implementation
      */
     public fun withRepository(repository: NonceQueueRepository): NonceQBuilder {
-<span class="nc" id="L59">        this.repository = repository</span>
-<span class="nc" id="L60">        return this</span>
+<span class="fc" id="L59">        this.repository = repository</span>
+<span class="fc" id="L60">        return this</span>
     }
 
     /**
      * Sets the repository to use Redis storage
      */
     public fun withRedisRepository(jedisPool: redis.clients.jedis.JedisPool): NonceQBuilder {
-<span class="nc" id="L67">        this.repository = RedisNonceQueueRepository(jedisPool)</span>
-<span class="nc" id="L68">        return this</span>
+<span class="fc" id="L67">        this.repository = RedisNonceQueueRepository(jedisPool)</span>
+<span class="fc" id="L68">        return this</span>
     }
 
     /**
      * Sets the block nonce provider
      */
     public fun withBlockNonceProvider(provider: BlockNonceProvider): NonceQBuilder {
-<span class="nc" id="L75">        this.blockNonceProvider = provider</span>
-<span class="nc" id="L76">        return this</span>
+<span class="fc" id="L75">        this.blockNonceProvider = provider</span>
+<span class="fc" id="L76">        return this</span>
     }
 
     /**
      * Sets the block nonce provider to use Web3j (required)
      */
     public fun withWeb3jBlockNonceProvider(web3j: Web3j): NonceQBuilder {
-<span class="nc" id="L83">        this.blockNonceProvider = Web3jBlockNonceProvider(web3j)</span>
-<span class="nc" id="L84">        return this</span>
+<span class="fc" id="L83">        this.blockNonceProvider = Web3jBlockNonceProvider(web3j)</span>
+<span class="fc" id="L84">        return this</span>
     }
 
     /**
@@ -89,8 +89,8 @@ public object NonceQ {
      * Default: 100
      */
     public fun withQueueCapacity(capacity: Long): NonceQBuilder {
-<span class="nc" id="L92">        this.queueCapacity = capacity</span>
-<span class="nc" id="L93">        return this</span>
+<span class="fc" id="L92">        this.queueCapacity = capacity</span>
+<span class="fc" id="L93">        return this</span>
     }
 
     /**
@@ -98,21 +98,21 @@ public object NonceQ {
      * Default: 10,000 ms (10 seconds)
      */
     public fun withNonceExpiry(expiryMs: Long): NonceQBuilder {
-<span class="nc" id="L101">        this.nonceExpiry = expiryMs</span>
-<span class="nc" id="L102">        return this</span>
+<span class="fc" id="L101">        this.nonceExpiry = expiryMs</span>
+<span class="fc" id="L102">        return this</span>
     }
 
     /**
      * Builds the NonceManager instance
      */
     public fun build(): NonceManager {
-<span class="nc bnc" id="L109" title="All 2 branches missed.">        val repo = repository ?:</span>
-<span class="nc" id="L110">            throw IllegalStateException(&quot;Repository must be configured&quot;)</span>
-<span class="nc bnc" id="L111" title="All 2 branches missed.">        val provider = blockNonceProvider ?:</span>
-<span class="nc" id="L112">            throw IllegalStateException(&quot;BlockNonceProvider must be configured&quot;)</span>
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        val repo = repository ?:</span>
+<span class="fc" id="L110">            throw IllegalStateException(&quot;Repository must be configured&quot;)</span>
+<span class="fc bfc" id="L111" title="All 2 branches covered.">        val provider = blockNonceProvider ?:</span>
+<span class="fc" id="L112">            throw IllegalStateException(&quot;BlockNonceProvider must be configured&quot;)</span>
 
-<span class="nc" id="L114">        val queue = NonceQueue(repo, queueCapacity, nonceExpiry)</span>
-<span class="nc" id="L115">        return NonceQueueManager(provider, queue)</span>
+<span class="fc" id="L114">        val queue = NonceQueue(repo, queueCapacity, nonceExpiry)</span>
+<span class="fc" id="L115">        return NonceQueueManager(provider, queue)</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>

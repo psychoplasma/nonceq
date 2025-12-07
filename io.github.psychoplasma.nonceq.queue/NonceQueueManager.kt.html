@@ -7,73 +7,73 @@ import java.math.BigInteger
 import java.util.concurrent.Semaphore
 
 
-<span class="nc" id="L10">internal class NonceQueueManager(</span>
-<span class="nc" id="L11">    private val blockNonceProvider: BlockNonceProvider,</span>
-<span class="nc" id="L12">    private val nonceQueue: NonceQueue,</span>
+<span class="fc" id="L10">internal class NonceQueueManager(</span>
+<span class="fc" id="L11">    private val blockNonceProvider: BlockNonceProvider,</span>
+<span class="fc" id="L12">    private val nonceQueue: NonceQueue,</span>
 ) : NonceManager {
-<span class="nc" id="L14">    private val semaphore = Semaphore(1)</span>
+<span class="fc" id="L14">    private val semaphore = Semaphore(1)</span>
 
     override fun getNextValidNonce(address: String): BigInteger {
-<span class="nc" id="L17">        semaphore.acquire()</span>
-<span class="nc" id="L18">        try {</span>
-<span class="nc" id="L19">            val neutralizedAddress = address.lowercase()</span>
+<span class="fc" id="L17">        semaphore.acquire()</span>
+<span class="fc" id="L18">        try {</span>
+<span class="fc" id="L19">            val neutralizedAddress = address.lowercase()</span>
 
             // Initialize with block nonce if empty
-<span class="nc bnc" id="L22" title="All 2 branches missed.">            if (nonceQueue.isEmpty(neutralizedAddress)) {</span>
-<span class="nc" id="L23">                val blockNonce = blockNonceProvider.getBlockNonce(</span>
-<span class="nc" id="L24">                    neutralizedAddress,</span>
+<span class="fc bfc" id="L22" title="All 2 branches covered.">            if (nonceQueue.isEmpty(neutralizedAddress)) {</span>
+<span class="fc" id="L23">                val blockNonce = blockNonceProvider.getBlockNonce(</span>
+<span class="fc" id="L24">                    neutralizedAddress,</span>
                 )
-<span class="nc" id="L26">                nonceQueue.insert(neutralizedAddress, blockNonce)</span>
-<span class="nc" id="L27">                return blockNonce</span>
+<span class="fc" id="L26">                nonceQueue.insert(neutralizedAddress, blockNonce)</span>
+<span class="fc" id="L27">                return blockNonce</span>
             }
 
-<span class="nc" id="L30">            return nonceQueue.next(neutralizedAddress)</span>
+<span class="fc" id="L30">            return nonceQueue.next(neutralizedAddress)</span>
         } finally {
-<span class="nc" id="L32">            semaphore.release()</span>
+<span class="fc" id="L32">            semaphore.release()</span>
         }
     }
 
     override fun useNonce(address: String, nonce: BigInteger, txId: String?) {
-<span class="nc" id="L37">        semaphore.acquire()</span>
-<span class="nc" id="L38">        try {</span>
-<span class="nc" id="L39">            nonceQueue.markUsed(address.lowercase(), nonce)</span>
+<span class="fc" id="L37">        semaphore.acquire()</span>
+<span class="fc" id="L38">        try {</span>
+<span class="fc" id="L39">            nonceQueue.markUsed(address.lowercase(), nonce)</span>
         } finally {
-<span class="nc" id="L41">            semaphore.release()</span>
+<span class="fc" id="L41">            semaphore.release()</span>
         }
-<span class="nc" id="L43">    }</span>
+<span class="fc" id="L43">    }</span>
 
     override fun discardNonce(
         address: String,
         nonce: BigInteger,
         errorMessage: String?,
     ) {
-<span class="nc" id="L50">        semaphore.acquire()</span>
-<span class="nc" id="L51">        try {</span>
-<span class="nc" id="L52">            val neutralizedAddress = address.lowercase()</span>
+<span class="fc" id="L50">        semaphore.acquire()</span>
+<span class="fc" id="L51">        try {</span>
+<span class="fc" id="L52">            val neutralizedAddress = address.lowercase()</span>
             // If somehow nonce manager falls behind blockchain nonce,
             // then reset the queue and start with the recent nonce value
             // in the next iteration.
             if (
-<span class="nc bnc" id="L57" title="All 6 branches missed.">                errorMessage?.contains(&quot;nonce too low&quot;, true) == true</span>
-<span class="nc bnc" id="L58" title="All 2 branches missed.">                &amp;&amp; !nonceQueue.isEmpty(neutralizedAddress)</span>
+<span class="pc bpc" id="L57" title="1 of 6 branches missed.">                errorMessage?.contains(&quot;nonce too low&quot;, true) == true</span>
+<span class="fc bfc" id="L58" title="All 2 branches covered.">                &amp;&amp; !nonceQueue.isEmpty(neutralizedAddress)</span>
             ) {
-<span class="nc" id="L60">                nonceQueue.reset(neutralizedAddress)</span>
+<span class="fc" id="L60">                nonceQueue.reset(neutralizedAddress)</span>
             }
             else {
-<span class="nc" id="L63">                nonceQueue.remove(neutralizedAddress, nonce)</span>
+<span class="fc" id="L63">                nonceQueue.remove(neutralizedAddress, nonce)</span>
             }
         } finally {
-<span class="nc" id="L66">            semaphore.release()</span>
+<span class="fc" id="L66">            semaphore.release()</span>
         }
-<span class="nc" id="L68">    }</span>
+<span class="fc" id="L68">    }</span>
 
     fun reset(address: String) {
-<span class="nc" id="L71">        semaphore.acquire()</span>
-<span class="nc" id="L72">        try {</span>
-<span class="nc" id="L73">            nonceQueue.reset(address.lowercase())</span>
+<span class="fc" id="L71">        semaphore.acquire()</span>
+<span class="fc" id="L72">        try {</span>
+<span class="fc" id="L73">            nonceQueue.reset(address.lowercase())</span>
         } finally {
-<span class="nc" id="L75">            semaphore.release()</span>
+<span class="fc" id="L75">            semaphore.release()</span>
         }
-<span class="nc" id="L77">    }</span>
+<span class="fc" id="L77">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.9.202303310957</span></div></body></html>
