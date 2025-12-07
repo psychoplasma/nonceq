@@ -2,7 +2,6 @@
 
 [![tests](https://github.com/psychoplasma/nonceq/actions/workflows/ci.yml/badge.svg)](https://github.com/psychoplasma/nonceq/actions/workflows/ci.yml)
 [![Coverage](https://github.com/psychoplasma/nonceq/blob/gh-pages/badges/coverage.svg?raw=true)](https://psychoplasma.github.io/nonceq/)
-![Branches](https://github.com/psychoplasma/nonceq/blob/gh-pages/badges/branches.svg?raw=true)
 
 Nonce queuing manager for nonce-based transactions (e.g., Ethereum). It provides a simple LRU queue with reuse and discarding features to manage nonces sequentially, even with concurrent requests.
 
