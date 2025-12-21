@@ -68,7 +68,7 @@ publishing {
             from(components["java"])
             groupId = "io.github.psychoplasma"
             artifactId = "nonceq"
-            version = "0.1.0"
+            version = "0.1.13"
 
             pom {
                 name = "nonceq"
